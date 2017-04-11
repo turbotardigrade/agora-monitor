@@ -5,13 +5,19 @@ import (
 	"errors"
 	"os"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/namesys"
-	"github.com/ipfs/go-ipfs/repo/config"
-	"github.com/ipfs/go-ipfs/repo/fsrepo"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/namesys"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/repo/config"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/repo/fsrepo"
 )
 
-const nBitsForKeypair = 2048
+const (
+	nBitsForKeypair = 2048
+	// BootstrapPeerID is the peer id of agora's bootstrap node
+	BootstrapPeerID = "QmdtfJBMitotUWBX5YZ6rYeaYRFu6zfXXMZP6fygEWK2iu"
+	// BootstrapMultiAddr is the ipfs address of agora's bootstrap node
+	BootstrapMultiAddr = "/ip4/54.178.171.10/tcp/4001/ipfs/" + BootstrapPeerID
+)
 
 // NewNode creates a new Node from an existing node repository
 func NewNode(path string) (*core.IpfsNode, error) {
@@ -57,6 +63,22 @@ func NewNodeRepo(repoRoot string, addr *config.Addresses) error {
 	if addr != nil {
 		conf.Addresses = *addr
 	}
+
+	own, err := config.ParseBootstrapPeer(BootstrapMultiAddr)
+	if err != nil {
+		return err
+	}
+
+	defaults, err := config.DefaultBootstrapPeers()
+	if err != nil {
+		return err
+	}
+
+	bps := []config.BootstrapPeer{own}
+	bps = append(bps, defaults...)
+
+	// Add our own bootstrap node
+	conf.SetBootstrapPeers(bps)
 
 	fsrepo.Init(repoRoot, conf)
 	if err != nil {

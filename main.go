@@ -2,24 +2,19 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"os"
-	"syscall"
+	"sync"
+	"time"
+
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/repo/config"
 
 	"github.com/turbotardigrade/monitor/node"
 )
 
 const MyNodePath = "./data/monitorNode"
 
-// Exists check if path exists
-func Exists(path string) bool {
-	if _, err := os.Stat(path); err != nil {
-		if os.IsNotExist(err) {
-			return false
-		}
-	}
-
-	return true
+var NodeList = []string{
+	"QmdtfJBMitotUWBX5YZ6rYeaYRFu6zfXXMZP6fygEWK2iu",
+	"QmVmPkKN9XXfxwQfinSWDYuU8M6U9dZdL46uSoSwuYgLKL",
 }
 
 func main() {
@@ -30,8 +25,18 @@ func main() {
 		panic(err)
 	}
 
+	// Create ipfs node if not exists
+	addr := &config.Addresses{
+		Swarm: []string{
+			"/ip4/0.0.0.0/tcp/4004",
+			"/ip6/::/tcp/4004",
+		},
+		API:     "/ip4/127.0.0.1/tcp/5004",
+		Gateway: "/ip4/127.0.0.1/tcp/8084",
+	}
+
 	if !Exists(MyNodePath) {
-		err := node.NewNodeRepo(MyNodePath, nil)
+		err := node.NewNodeRepo(MyNodePath, addr)
 		if err != nil {
 			panic(err)
 		}
@@ -42,37 +47,32 @@ func main() {
 		panic(err)
 	}
 
-	res, err := node.Request(n, "QmdtfJBMitotUWBX5YZ6rYeaYRFu6zfXXMZP6fygEWK2iu", "/health", "")
-	if err != nil {
-		panic(err)
+	fmt.Println("Seeding...")
+	time.Sleep(5 * time.Second)
+	fmt.Println("Seeding done.")
+
+	healthy := make(map[string]bool)
+	var wg sync.WaitGroup
+	wg.Add(len(NodeList))
+	for _, target := range NodeList {
+		go func(target string) {
+			defer wg.Done()
+
+			_, err := node.Request(n, target, "/health")
+			if err != nil {
+				fmt.Println("", err)
+				healthy[target] = false
+				return
+			}
+
+			healthy[target] = true
+		}(target)
 	}
 
-	fmt.Println(res)
-}
+	wg.Wait()
 
-var ipfsFileDescNum = uint64(5120)
-
-// Taken from github.com/ipfs/go-ipfs/blob/master/cmd/ipfs/ulimit_unix.go
-func checkAndSetUlimit() error {
-	var rLimit syscall.Rlimit
-	err := syscall.Getrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	if err != nil {
-		return fmt.Errorf("Error getting rlimit: %s", err)
+	for k, v := range healthy {
+		fmt.Println(k, v)
 	}
 
-	if rLimit.Cur < ipfsFileDescNum {
-		if rLimit.Max < ipfsFileDescNum {
-			log.Println("Error: adjusting max")
-			rLimit.Max = ipfsFileDescNum
-		}
-		// Info.Println("Adjusting current ulimit to ", ipfsFileDescNum, "...")
-		rLimit.Cur = ipfsFileDescNum
-	}
-
-	err = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &rLimit)
-	if err != nil {
-		return fmt.Errorf("Error setting ulimit: %s", err)
-	}
-
-	return nil
 }

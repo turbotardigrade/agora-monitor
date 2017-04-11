@@ -2,13 +2,13 @@ package node
 
 import (
 	"bytes"
-	peer "gx/ipfs/QmWUswjn261LSyVxWAEpMVtPdy8zmKBJJfBpG3Qdpa8ZsE/go-libp2p-peer"
 
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/corenet"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core/corenet"
+	peer "gx/ipfs/QmZcUPvPhD1Xvk6mwijYF8AfR3mG31S1YsEfHG4khrFPRr/go-libp2p-peer"
 )
 
-func Request(node *core.IpfsNode, targetPeer string, path string, body string) (string, error) {
+func Request(node *core.IpfsNode, targetPeer string, path string) (string, error) {
 	// Check if Node hash is valid
 	target, err := peer.IDB58Decode(targetPeer)
 	if err != nil {
@@ -20,9 +20,6 @@ func Request(node *core.IpfsNode, targetPeer string, path string, body string) (
 	if err != nil {
 		return "", err
 	}
-
-	// Exchange request and response
-	stream.Write([]byte(body))
 
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(stream)
