@@ -50,3 +50,48 @@ func getPosts(n *core.IpfsNode, target string) []string {
 
 	return js["Posts"]
 }
+
+func evalWorker(n *core.IpfsNode, hashes chan string, labels chan<- bool) {
+	for hash := range hashes {
+		content, err := getContent(n, hash)
+		if err != nil {
+			fmt.Println("ERROR getting content:", err)
+			hashes <- hash
+			continue
+		}
+
+		label, err := checkLabel(content)
+		if err != nil {
+			fmt.Println("ERROR getting label:", err)
+			continue
+		}
+
+		labels <- label
+	}
+}
+
+func evaluatePosts(n *core.IpfsNode, posts []string) float32 {
+	hashes := make(chan string, len(posts))
+	labels := make(chan bool, len(posts))
+
+	for i := 0; i < 20; i++ {
+		go evalWorker(n, hashes, labels)
+	}
+
+	for _, p := range posts {
+		hashes <- p
+	}
+	//close(hashes)
+
+	trueCounter := 0
+	counter := 0
+	for i := 0; i < len(posts); i++ {
+		if <-labels {
+			trueCounter++
+		}
+		counter++
+		//fmt.Println(counter)
+	}
+
+	return float32(trueCounter) / float32(counter)
+}

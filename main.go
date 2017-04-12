@@ -7,8 +7,9 @@ import (
 const MyNodePath = "./data/monitorNode"
 
 var NodeList = []string{
-	"QmdtfJBMitotUWBX5YZ6rYeaYRFu6zfXXMZP6fygEWK2iu",
-	"QmVmPkKN9XXfxwQfinSWDYuU8M6U9dZdL46uSoSwuYgLKL",
+	"QmRJe2QeEt89qeEM4onq7AmgKkLNEwJuWsRoR97Zdnx17C", //Left spam
+	"QmPrEnycMnzg6sADkcPRLefYWf7bnb8TG6k13nsivV6noX", //Right Top
+	"QmWCBPbwi9JCRAG1AE9ik2E3Y3FD3Xc2ARj6k6QREZdGBy", //Right Bot
 }
 
 func main() {
@@ -31,19 +32,8 @@ func main() {
 
 	fmt.Println("\nPosts")
 	for k, v := range posts {
-		for _, hash := range v {
-			content, err := getContent(n, hash)
-			if err != nil {
-				fmt.Println("ERROR getting content:", err)
-				continue
-			}
-
-			label, err := checkLabel(content)
-			if err != nil {
-				fmt.Println("ERROR getting label:", err)
-				continue
-			}
-			fmt.Println(k, label)
-		}
+		fmt.Println("\nEvaluate peer ", k)
+		fmt.Println("Total:", len(v))
+		fmt.Println("Spam ratio:", evaluatePosts(n, v))
 	}
 }

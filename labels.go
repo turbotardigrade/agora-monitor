@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,7 +36,7 @@ func checkLabel(content string) (bool, error) {
 	h := md5.New()
 	io.WriteString(h, content)
 
-	b, ok := labels[string(h.Sum(nil))]
+	b, ok := labels[hex.EncodeToString(h.Sum(nil))]
 	if !ok {
 		return false, errors.New("Content is not labeled")
 	}
