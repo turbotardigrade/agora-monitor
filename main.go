@@ -17,6 +17,11 @@ func main() {
 		panic(err)
 	}
 
+	err = loadLabels()
+	if err != nil {
+		panic(err)
+	}
+
 	healthy, posts := monitor(n)
 
 	fmt.Println("Health Status")
@@ -26,6 +31,19 @@ func main() {
 
 	fmt.Println("\nPosts")
 	for k, v := range posts {
-		fmt.Println(k, v)
+		for _, hash := range v {
+			content, err := getContent(n, hash)
+			if err != nil {
+				fmt.Println("ERROR getting content:", err)
+				continue
+			}
+
+			label, err := checkLabel(content)
+			if err != nil {
+				fmt.Println("ERROR getting label:", err)
+				continue
+			}
+			fmt.Println(k, label)
+		}
 	}
 }
