@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
 
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
 	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/repo/config"
 
 	"github.com/turbotardigrade/monitor/node"
@@ -40,6 +42,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		fmt.Println("Seeding...")
+		time.Sleep(5 * time.Second)
+		fmt.Println("Seeding done.")
+
 	}
 
 	n, err := node.NewNode(MyNodePath)
@@ -47,32 +54,52 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println("Seeding...")
-	time.Sleep(5 * time.Second)
-	fmt.Println("Seeding done.")
+	healthy := make(map[string]bool, len(NodeList))
+	posts := make(map[string][]string, len(NodeList))
 
-	healthy := make(map[string]bool)
 	var wg sync.WaitGroup
 	wg.Add(len(NodeList))
 	for _, target := range NodeList {
 		go func(target string) {
 			defer wg.Done()
 
-			_, err := node.Request(n, target, "/health")
-			if err != nil {
-				fmt.Println("", err)
+			ps := getPosts(n, target)
+			if ps != nil {
+				posts[target] = ps
+				healthy[target] = true
+			} else {
 				healthy[target] = false
-				return
 			}
-
-			healthy[target] = true
 		}(target)
 	}
 
 	wg.Wait()
 
+	fmt.Println("Health Status")
 	for k, v := range healthy {
 		fmt.Println(k, v)
 	}
 
+	fmt.Println("\nPosts")
+	for k, v := range posts {
+		fmt.Println(k, v)
+	}
+
+}
+
+func getPosts(n *core.IpfsNode, target string) []string {
+	resp, err := node.Request(n, target, "/posts")
+	if err != nil {
+		fmt.Println("Request failed:", err)
+		return nil
+	}
+
+	js := make(map[string][]string)
+	err = json.Unmarshal([]byte(resp), &js)
+	if err != nil {
+		fmt.Println("JSON unmarshalling failed:", err)
+		return nil
+	}
+
+	return js["Posts"]
 }
