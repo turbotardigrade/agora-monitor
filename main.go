@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
 	"sort"
+	"time"
 )
 
 const MyNodePath = "./data/monitorNode"
@@ -24,6 +26,13 @@ func main() {
 		panic(err)
 	}
 
+	for {
+		monitorRoutine(n)
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func monitorRoutine(n *core.IpfsNode) {
 	healthy, posts := monitor(n)
 	sortedList := sortedNodes(healthy)
 
