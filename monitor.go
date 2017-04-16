@@ -56,7 +56,6 @@ func evalWorker(n *core.IpfsNode, hashes chan string, labels chan<- bool) {
 		content, err := getContent(n, hash)
 		if err != nil {
 			fmt.Println("ERROR getting content:", err)
-			hashes <- hash
 			continue
 		}
 
@@ -81,7 +80,7 @@ func evaluatePosts(n *core.IpfsNode, posts []string) float32 {
 	for _, p := range posts {
 		hashes <- p
 	}
-	//close(hashes)
+	close(hashes)
 
 	trueCounter := 0
 	counter := 0
