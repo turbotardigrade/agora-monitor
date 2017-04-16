@@ -45,7 +45,7 @@ func main() {
 }
 
 func monitorRoutine(n *core.IpfsNode, f *os.File) {
-	healthy, posts := monitor(n)
+	healthy, posts, blacklists := monitor(n)
 	sortedList := sortedNodes(healthy)
 
 	fmt.Println("----------------------------------------------------------------------")
@@ -61,12 +61,17 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 		ps := posts[h]
 		total := len(ps)
 		spamratio := evaluatePosts(n, ps)
+		blacklistCount := len(blacklists[h])
 
-		fmt.Println(formatHash(h), total, spamratio)
-		line += fmt.Sprintf("%v,%v,%v,", h, total, spamratio)
+		fmt.Println(formatHash(h), total, spamratio, blacklistCount)
+		line += fmt.Sprintf("%v,%v,%v,%v,", h, total, spamratio, blacklistCount)
 	}
-
 	line += "\n"
+
+	fmt.Println("\nBlacklists")
+	for _, h := range sortedList {
+		fmt.Println(formatHash(h), blacklists[h])
+	}
 
 	_, err := f.WriteString(line)
 	if err != nil {

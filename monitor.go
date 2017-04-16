@@ -10,11 +10,13 @@ import (
 	"github.com/turbotardigrade/monitor/node"
 )
 
-func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]string) {
+func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]string, blacklists map[string][]map[string]int) {
 	healthy = make(map[string]bool, len(NodeList))
 	posts = make(map[string][]string, len(NodeList))
+	blacklists = make(map[string][]map[string]int, len(NodeList))
 
-	var lock sync.Mutex
+	var pslock sync.Mutex
+	var bllock sync.Mutex
 	var wg sync.WaitGroup
 	wg.Add(len(NodeList))
 	for _, target := range NodeList {
@@ -22,21 +24,27 @@ func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]stri
 			defer wg.Done()
 
 			ps := getPosts(n, target)
+
+			pslock.Lock()
 			if ps != nil {
-				lock.Lock()
 				posts[target] = ps
 				healthy[target] = true
-				lock.Unlock()
 			} else {
-				lock.Lock()
 				healthy[target] = false
-				lock.Unlock()
+			}
+			pslock.Unlock()
+
+			bl := getBlacklist(n, target)
+			if bl != nil {
+				bllock.Lock()
+				blacklists[target] = bl
+				bllock.Unlock()
 			}
 		}(target)
 	}
 	wg.Wait()
 
-	return healthy, posts
+	return healthy, posts, blacklists
 }
 
 func getPosts(n *core.IpfsNode, target string) []string {
@@ -54,6 +62,23 @@ func getPosts(n *core.IpfsNode, target string) []string {
 	}
 
 	return js["Posts"]
+}
+
+func getBlacklist(n *core.IpfsNode, target string) []map[string]int {
+	resp, err := node.Request(n, target, "/blacklist")
+	if err != nil {
+		fmt.Println("Request failed:", err)
+		return nil
+	}
+
+	js := make(map[string][]map[string]int)
+	err = json.Unmarshal([]byte(resp), &js)
+	if err != nil {
+		fmt.Println("JSON unmarshalling failed:", err)
+		return nil
+	}
+
+	return js["Peers"]
 }
 
 func evalWorker(n *core.IpfsNode, hashes chan string, labels chan<- bool) {
