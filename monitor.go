@@ -14,6 +14,7 @@ func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]stri
 	healthy = make(map[string]bool, len(NodeList))
 	posts = make(map[string][]string, len(NodeList))
 
+	var lock sync.Mutex
 	var wg sync.WaitGroup
 	wg.Add(len(NodeList))
 	for _, target := range NodeList {
@@ -22,10 +23,14 @@ func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]stri
 
 			ps := getPosts(n, target)
 			if ps != nil {
+				lock.Lock()
 				posts[target] = ps
 				healthy[target] = true
+				lock.Unlock()
 			} else {
+				lock.Lock()
 				healthy[target] = false
+				lock.Unlock()
 			}
 		}(target)
 	}
