@@ -28,7 +28,7 @@ func loadLabels() error {
 		return err
 	}
 
-	fmt.Println(len(labels))
+	fmt.Println(len(labels), "reference labels loaded into memory")
 	return nil
 }
 

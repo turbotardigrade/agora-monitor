@@ -2,14 +2,15 @@ package main
 
 import (
 	"fmt"
+	"sort"
 )
 
 const MyNodePath = "./data/monitorNode"
 
 var NodeList = []string{
-	"QmRJe2QeEt89qeEM4onq7AmgKkLNEwJuWsRoR97Zdnx17C", //Left spam
-	"QmPrEnycMnzg6sADkcPRLefYWf7bnb8TG6k13nsivV6noX", //Right Top
-	"QmWCBPbwi9JCRAG1AE9ik2E3Y3FD3Xc2ARj6k6QREZdGBy", //Right Bot
+	"Qmdwu4tKzVLhkytBM4gLuDUNR17sYdEMPY7hTfANe5H2r8", //Left spam
+	"Qmc3R6A1Dd9RtQdMqw5udPihjy1gsKs38imiPqfHZ49ZPb", //Right Top
+	"QmcDFEbAQtqL4Dh2xAZ4GTqPHUuAdhnvLGAJfgpH1Q1B2t", //Right Bot
 }
 
 func main() {
@@ -24,16 +25,34 @@ func main() {
 	}
 
 	healthy, posts := monitor(n)
+	sortedList := sortedNodes(healthy)
 
 	fmt.Println("Health Status")
-	for k, v := range healthy {
-		fmt.Println(k, v)
+	for _, h := range sortedList {
+		fmt.Println(h, healthy[h])
 	}
 
 	fmt.Println("\nPosts")
-	for k, v := range posts {
-		fmt.Println("\nEvaluate peer ", k)
-		fmt.Println("Total:", len(v))
-		fmt.Println("Spam ratio:", evaluatePosts(n, v))
+	for _, h := range sortedList {
+		ps := posts[h]
+		total := len(ps)
+
+		fmt.Println("\nEvaluate peer ", h)
+		fmt.Println("Total:", total)
+		fmt.Println("Spam ratio:", evaluatePosts(n, ps))
 	}
+}
+
+func sortedNodes(nodes map[string]bool) []string {
+	arr := make([]string, len(nodes))
+
+	i := 0
+	for k, _ := range nodes {
+		arr[i] = k
+		i += 1
+	}
+
+	sort.Strings(arr)
+
+	return arr
 }
