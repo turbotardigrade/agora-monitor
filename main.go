@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
+	"os"
 	"sort"
 	"time"
 )
@@ -26,29 +27,50 @@ func main() {
 		panic(err)
 	}
 
+	err = CreateFileIfNotExists("stats.csv")
+	if err != nil {
+		panic(err)
+	}
+
+	f, err := os.OpenFile("stats.csv", os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
 	for {
-		monitorRoutine(n)
+		monitorRoutine(n, f)
 		time.Sleep(5 * time.Second)
 	}
 }
 
-func monitorRoutine(n *core.IpfsNode) {
+func monitorRoutine(n *core.IpfsNode, f *os.File) {
 	healthy, posts := monitor(n)
 	sortedList := sortedNodes(healthy)
 
-	fmt.Println("Health Status")
+	fmt.Println("----------------------------------------------------------------------")
 	for _, h := range sortedList {
-		fmt.Println(h, healthy[h])
+		if !healthy[h] {
+			fmt.Println(formatHash(h), "is unhealthy")
+		}
 	}
 
 	fmt.Println("\nPosts")
+	line := ""
 	for _, h := range sortedList {
 		ps := posts[h]
 		total := len(ps)
+		spamratio := evaluatePosts(n, ps)
 
-		fmt.Println("\nEvaluate peer ", h)
-		fmt.Println("Total:", total)
-		fmt.Println("Spam ratio:", evaluatePosts(n, ps))
+		fmt.Println(formatHash(h), total, spamratio)
+		line += fmt.Sprintf("%v,%v,%v,", h, total, spamratio)
+	}
+
+	line += "\n"
+
+	_, err := f.WriteString(line)
+	if err != nil {
+		fmt.Println("ERROR:", err)
 	}
 }
 
@@ -64,4 +86,7 @@ func sortedNodes(nodes map[string]bool) []string {
 	sort.Strings(arr)
 
 	return arr
+}
+func formatHash(hash string) string {
+	return "[" + hash[len(hash)-5:len(hash)] + "]\t"
 }
