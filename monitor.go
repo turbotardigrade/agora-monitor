@@ -10,13 +10,14 @@ import (
 	"github.com/turbotardigrade/monitor/node"
 )
 
-func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]string, blacklists map[string][]map[string]int) {
+func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]string, blacklists map[string][]map[string]float32) {
 	healthy = make(map[string]bool, len(NodeList))
 	posts = make(map[string][]string, len(NodeList))
-	blacklists = make(map[string][]map[string]int, len(NodeList))
+	blacklists = make(map[string][]map[string]float32, len(NodeList))
 
 	var pslock sync.Mutex
 	var bllock sync.Mutex
+
 	var wg sync.WaitGroup
 	wg.Add(len(NodeList))
 	for _, target := range NodeList {
@@ -64,14 +65,14 @@ func getPosts(n *core.IpfsNode, target string) []string {
 	return js["Posts"]
 }
 
-func getBlacklist(n *core.IpfsNode, target string) []map[string]int {
+func getBlacklist(n *core.IpfsNode, target string) []map[string]float32 {
 	resp, err := node.Request(n, target, "/blacklist")
 	if err != nil {
 		fmt.Println("Request failed:", err)
 		return nil
 	}
 
-	js := make(map[string][]map[string]int)
+	js := make(map[string][]map[string]float32)
 	err = json.Unmarshal([]byte(resp), &js)
 	if err != nil {
 		fmt.Println("JSON unmarshalling failed:", err)

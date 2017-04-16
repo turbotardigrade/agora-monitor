@@ -11,9 +11,14 @@ import (
 const MyNodePath = "./data/monitorNode"
 
 var NodeList = []string{
-	"Qmdwu4tKzVLhkytBM4gLuDUNR17sYdEMPY7hTfANe5H2r8", //Left spam
-	"Qmc3R6A1Dd9RtQdMqw5udPihjy1gsKs38imiPqfHZ49ZPb", //Right Top
-	"QmcDFEbAQtqL4Dh2xAZ4GTqPHUuAdhnvLGAJfgpH1Q1B2t", //Right Bot
+	"QmWSEKJqQqBNCCHEy4WTZcuZUmjmS2cexnRofceZf2bD7D", //spam
+	"QmajBiibByrMkaGFznNrA5x9oxziBMJ5QXsH5Pb8bcPpsS", // spam
+	"Qmae3pLmGUJhMMP8ungzHLnA5BYJWzFhbkMxHveC4CVcUU",
+	"QmTDhg18AZV27haxPW7ZZPzbczpiRBr2u7ZVznaA3Eu13J",
+	"Qmac7EgAPVuGcJcuBvD51Jpt8TkM7pMfQz1TjXi1pfgCzC",
+	"QmYSmjBiEQdkU56dkrb1cvNLfPAGKoRFXXxUAqScbEZUT8",
+	"QmaUFw1RWSzgeV1qNBDKx8okHTBEUqUiWrxKSZZjXBMYtB",
+	"QmSvFuDHQCcGiQrNXaDeMn8BSTeDgDYs5Pg3vsbbMRgyS3",
 }
 
 func main() {
@@ -56,14 +61,15 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 	}
 
 	fmt.Println("\nPosts")
-	line := ""
+	hr, min, sec := time.Now().Clock()
+	line := fmt.Sprintf("%d:%d:%d,", hr, min, sec)
 	for _, h := range sortedList {
 		ps := posts[h]
 		total := len(ps)
 		spamratio := evaluatePosts(n, ps)
 		blacklistCount := len(blacklists[h])
 
-		fmt.Println(formatHash(h), total, spamratio, blacklistCount)
+		fmt.Printf("%v  %v\t%v\t%v\n", formatHash(h), total, spamratio, blacklistCount)
 		line += fmt.Sprintf("%v,%v,%v,%v,", h, total, spamratio, blacklistCount)
 	}
 	line += "\n"
