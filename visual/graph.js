@@ -1,7 +1,8 @@
 const svg = d3.select('svg');
+const radius = 20;
 
 function createNode(id, x, y, col) {
-  return { id: id, radius: 20, fill: col, x, y };
+  return { id: id, radius, fill: col, x, y };
 }
 
 function createLink(source, target, stroke) {
@@ -34,8 +35,9 @@ const data = {
   ]
 };
 
-const gNodes = svg.append('g').attr('class', 'nodes');
 const gLinks = svg.append('g').attr('class', 'links');
+const gNodes = svg.append('g').attr('class', 'nodes');
+
 
 // Takes an object representing the state of the network and draws it
 // Warning, possible mindfuck
@@ -47,12 +49,12 @@ function draw(data) {
   // DATA JOIN
   // Join new data with old elements, if any.
 
-  const node = gNodes
-    .selectAll('g')
-    .data(data.nodes)
-    const link = gLinks
+  const link = gLinks
     .selectAll('line')
     .data(data.links);
+  const node = gNodes
+    .selectAll('g')
+    .data(data.nodes);
 
   // ENTER
   // Create new elements as needed.
@@ -91,22 +93,21 @@ function draw(data) {
   linkEnter.attr('x1', d => gNodes.selectAll('g')
 				  .filter(g => g.id === d.source)
 				  .node()
-				  .getBoundingClientRect().left)
-		      .attr('y1', d => gNodes.selectAll('g')
-					     .filter(g => g.id === d.source)
-					     .node()
-					     .getBoundingClientRect().top)
-		      .attr('x2', d => gNodes.selectAll('g')
-					     .filter(g => g.id === d.target)
-					     .node()
-					     .getBoundingClientRect().left)
-		      .attr('y2', d => gNodes.selectAll('g')
-					     .filter(g => g.id === d.target)
-					     .node()
-					     .getBoundingClientRect().top);
+				  .getBoundingClientRect().left+0.6*radius);
+  linkEnter.attr('y1', d => gNodes.selectAll('g')
+				  .filter(g => g.id === d.source)
+				  .node()
+				  .getBoundingClientRect().top+0.6*radius);
+  linkEnter.attr('x2', d => gNodes.selectAll('g')
+				  .filter(g => g.id === d.target)
+				  .node()
+				  .getBoundingClientRect().left+0.6*radius);
+  linkEnter.attr('y2', d => gNodes.selectAll('g')
+				  .filter(g => g.id === d.target)
+				  .node()
+				  .getBoundingClientRect().top+0.6*radius);
 
   const linkUpdate = linkEnter.merge(link);
-
   linkUpdate.style('stroke', d => d.stroke);
 
   // EXIT
