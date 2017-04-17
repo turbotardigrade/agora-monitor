@@ -10,6 +10,9 @@ import (
 	"github.com/turbotardigrade/monitor/node"
 )
 
+var MonitorMap = make(map[string]MonitorResp)
+var MonitorMapLock sync.RWMutex
+
 func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]string, blacklists map[string][]map[string]float32) {
 	healthy = make(map[string]bool, len(NodeList))
 	posts = make(map[string][]string, len(NodeList))
@@ -41,7 +44,7 @@ func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]stri
 				blacklists[target] = bl
 				bllock.Unlock()
 			}
-		}(target)
+		}(target.ID)
 	}
 	wg.Wait()
 
@@ -120,7 +123,6 @@ func evaluatePosts(n *core.IpfsNode, posts []string) float32 {
 			trueCounter++
 		}
 		counter++
-		//fmt.Println(counter)
 	}
 
 	return float32(trueCounter) / float32(counter)

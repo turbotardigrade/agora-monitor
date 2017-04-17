@@ -1,10 +1,10 @@
-.links line {
+.link {
     stroke: #999;
     stroke-width: 4px;
 }
 
-.nodes circle {
+.node circle {
     fill: #F00;
     stroke: black;
-    stroke-width: 3px;
+    stroke-width: 2px;
 }
