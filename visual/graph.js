@@ -29,7 +29,13 @@ function init() {
     for (var j=i+1; j<nodes_data.length; ++j) {
       var s = nodes_data[i].id;
       var t = nodes_data[j].id;
-      links_data.push(createLink(s, t));
+
+      var col = 'green';
+      if (nodes[i].is_spammer || nodes[j].is_spammer) {
+	col = 'red';
+      }
+      
+      links_data.push(createLink(s, t, col));
     }
   }
 
@@ -37,8 +43,10 @@ function init() {
   node = svg.selectAll(".node").data(nodes_data).enter().append("g");
 
   draw();
-  setTimeout(update, 500);
+  setTimeout(update, 3000);
 }
+
+// @TODO spammer should have red border
 
 function update() {
   console.log("update");
@@ -47,31 +55,34 @@ function update() {
     Object.keys(data).forEach(function(k) {
       var n = getNode(k);
       var d = data[k];
-
+      
       if (!d.healthy) {
-	n.fill = 'gray';
-
-	// @TODO turn all links gray
-	return
+	 n.fill = 'gray';
+	 colorLinksOfNode(n.id, 'gray');
+	 return
       }
 
       var red = Math.min(Math.round(d.spam_ratio*5*255), 255);
       var green = Math.min(Math.round((1-d.spam_ratio*5)*255), 255);
       n.fill = "rgb("+red+","+green+",0)";
 
-      // @TODO turn all links green
-
+      // For testing
+      /* if (k != "QmaXjNr6ZER1vpCZ7LPrsABCwtMRbwWfDVRHPcwJmfKwSs" && k != "QmPxeRd41wZYg8DuDxbV6mCfHRRTFJua5qwihmWHahmUQ1") {
+	 d.blacklist = [{"QmPxeRd41wZYg8DuDxbV6mCfHRRTFJua5qwihmWHahmUQ1":20.0}, {"QmaXjNr6ZER1vpCZ7LPrsABCwtMRbwWfDVRHPcwJmfKwSs":20.0}];
+	 } */
+      
       if (d.blacklist) {
 	d.blacklist.forEach(function(elem){
-	  var id = Object.keys(elem)[0];
-	  getLink(k, id).stroke = 'red';
+	  Object.keys(elem).forEach(function(id){
+	    removeLink(k, id);
+	  });
 	});
       }
       
-    });    
+    });
+    
+    draw();
   });
-
-  draw();
 
   // Example of how to redraw with new data
   // Just call draw() again with new data
@@ -90,8 +101,8 @@ function draw() {
 
   var force = d3.layout.force()
 		.gravity(.05)
-		.distance(300)
-		.charge(-100)
+		.distance(200)
+		.charge(-400)
 		.size([width, height]);
 
   force.nodes(nodes_data).links(links_data).start();
@@ -119,7 +130,8 @@ function draw() {
 
     node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
   });
-
+  
+  svg.selectAll('.link').data(links_data).exit().remove();
   node.selectAll('g').data(nodes_data).exit().remove();
 }
 
@@ -149,6 +161,21 @@ function getLink(id1, id2) {
   console.log("Error: Link between "+id1+" and "+id2+" not found");
 }
 
+function removeLink(id1, id2) {
+  for (var i=0; i<links_data.length; ++i) {
+    var link = links_data[i];
+    var isLink1 = link.source.id == id1 && link.target.id == id2;
+    var isLink2 = link.source.id == id2 && link.target.id == id1;
+    if (isLink1 || isLink2) {
+      // removes the link by 'drawing' a link to the same node
+      links_data[i].source = links_data[i].target;
+      return
+    }
+  }
+
+  // console.log("Error: Link between "+id1+" and "+id2+" not found");
+}
+
 function createNode(id, col) {
   return { id: id, radius, fill: col};
 }
@@ -165,8 +192,19 @@ function findNodeIndex(id) {
   return -1;
 }
 
-function createLink(source, target) {
+function createLink(source, target, col) {
   var s = findNodeIndex(source);
   var t = findNodeIndex(target);
-  return { source: s, target: t, weight: 3, stroke: 'green'};
+  return { source: s, target: t, weight: 3, stroke: col};
+}
+
+function colorLinksOfNode(nodeID, col) {
+  var links = []
+  for (var i=0; i<links_data.length; ++i) {
+    var isSource = links_data[i].source.id == nodeID
+    var isTarget = links_data[i].target.id == nodeID
+    if (isSource || isTarget) {
+      links_data[i].stroke = col;
+    }
+  }
 }
