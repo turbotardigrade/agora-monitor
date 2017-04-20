@@ -18,7 +18,7 @@ function init() {
     var elem = nodes[i];
 
     if (elem.is_spammer) {
-      nodes_data.push(createNode(elem.id, 'rrg(255, 0, 0)'))
+      nodes_data.push(createNode(elem.id, 'rgb(255, 0, 0)'))
     } else {
       nodes_data.push(createNode(elem.id, 'rgb(0, 255, 0)'))
     };
@@ -115,7 +115,8 @@ function draw() {
 
   node.append("circle")
       .attr('r', d => d.radius)
-      .style('fill', d => d.fill);
+      .style('fill', d => d.fill)
+      .style('stroke', d => d.stroke);
 
   node.append("text")
       .attr('text-anchor', 'middle')
@@ -177,7 +178,7 @@ function removeLink(id1, id2) {
 }
 
 function createNode(id, col) {
-  return { id: id, radius, fill: col};
+  return { id: id, radius, fill: col, stroke: col};
 }
 
 // Connect all nodes together
@@ -195,7 +196,7 @@ function findNodeIndex(id) {
 function createLink(source, target, col) {
   var s = findNodeIndex(source);
   var t = findNodeIndex(target);
-  return { source: s, target: t, weight: 3, stroke: col};
+  return { source: s, target: t, weight: 3};
 }
 
 function colorLinksOfNode(nodeID, col) {
