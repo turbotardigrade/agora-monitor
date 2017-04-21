@@ -49,7 +49,6 @@ func main() {
 	go func() {
 		for {
 			monitorRoutine(n, f)
-			time.Sleep(5 * time.Second)
 		}
 	}()
 
@@ -76,6 +75,9 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 	hr, min, sec := time.Now().Clock()
 	line := fmt.Sprintf("%d:%d:%d,", hr, min, sec)
 	for _, h := range sortedList {
+
+		time.Sleep(1 * time.Second)
+
 		ps := posts[h]
 		total := len(ps)
 		spamratio := evaluatePosts(n, ps)
