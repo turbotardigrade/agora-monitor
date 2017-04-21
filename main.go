@@ -97,7 +97,7 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 		}
 		MonitorMapLock.Unlock()
 
-		fmt.Printf("%v  \t%0000d    \t\t%.001f   \t\t%v\n", formatHash(h), total, spamratio, blacklistCount)
+		fmt.Printf("%v  \t%0000d    \t\t%3.2f   \t\t%v\n", formatHash(h), total, spamratio, blacklistCount)
 		line += fmt.Sprintf("%v,%v,%v,%v,", h, total, spamratio, blacklistCount)
 	}
 	line += "\n"
