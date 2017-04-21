@@ -6,8 +6,6 @@ import (
 	"sync"
 
 	"gx/ipfs/QmQa2wf1sLFKkjHCVEbna8y5qhdMjL8vtTJSAc48vZGTer/go-ipfs/core"
-
-	"github.com/turbotardigrade/monitor/node"
 )
 
 var MonitorMap = make(map[string]MonitorResp)
@@ -52,7 +50,7 @@ func monitor(n *core.IpfsNode) (healthy map[string]bool, posts map[string][]stri
 }
 
 func getPosts(n *core.IpfsNode, target string) []string {
-	resp, err := node.Request(n, target, "/posts")
+	resp, err := Request(n, target, "/posts")
 	if err != nil {
 		fmt.Println("Request failed:", err)
 		return nil
@@ -69,7 +67,7 @@ func getPosts(n *core.IpfsNode, target string) []string {
 }
 
 func getBlacklist(n *core.IpfsNode, target string) []map[string]float32 {
-	resp, err := node.Request(n, target, "/blacklist")
+	resp, err := Request(n, target, "/blacklist")
 	if err != nil {
 		fmt.Println("Request failed:", err)
 		return nil
