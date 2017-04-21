@@ -14,14 +14,14 @@ import (
 const MyNodePath = "./data/monitorNode"
 
 var NodeList = []Node{
-	{"QmRvHSgaDECsffFjdjZnVxrcbJr3ohfoHUSCVxqg4xTAhj", false},
-	{"QmZP3oT7VgwMeYK59iJJqdTHXDZwdBMMMq4naPSpWnSYYS", false},
-	{"QmdXTfSJm5qHthjquZTT1iqgS6Rq4YquRXTpR9JNuPqCAf", false},
-	{"QmPc648PbyYGAHegbBqbT5wwArEgbjohDHFo8JM3G9sMvR", false},
-	{"QmdF7cFHSFctJK5NFQXZ8x7Dx1CUu42oNP5bdvTXtWys1L", false},
-	{"Qma8HKE8L8P8zyEN8m8cBGsE1rmrLMYGUXzBKqywXBfBM1", true},
-	{"QmP735X6KNTMRtMqXd5ojCY6AUHBETwkH1H6i2FLoPQzx1", true},
-	{"QmPikSygPbM3E2xGs1x7Ra2E264gCJbpRRdf7pnvRyKprT", true},
+	{"QmeMVVuVKEWs4SM8tpc2DPt8vbpxdQwRokBwXSu5putT4Z", false},
+	{"QmUXd9sH7dvNcJwWQwAdX1CKZoFGFrrvHSoPisfjH7fubE", false},
+	{"QmWtXyS6AcEBFyLCNcEbr8rKdga5toFSAQFNpDM5ZTkvpq", false},
+	{"QmbWSkBe2hLcksxQ7dyWNZ9q33fYUwzeeQyiKk6mXdiRew", false},
+	{"QmT7LNeXzHKWRSAZq3U5NHcTsPUdR9my24gu29LVX7MgsS", false},
+	{"QmQ9epk6VuJK7aJVLdKkGrdjTNDZXu2CC71uKcYwRAvFni", true},
+	{"Qmcpr5tJqM8uVP2TV9Di6KQVQ6Dbo9hq9Y83osTzwKvj8f", true},
+	{"QmZVRixZR14rYvkmsjpmSTBs8TpGy6wu1joUHT7eAfZupU", true},
 }
 
 func main() {
