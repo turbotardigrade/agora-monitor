@@ -58,7 +58,7 @@ function update() {
       
       if (!d.healthy) {
 	 n.fill = 'gray';
-	 colorLinksOfNode(n.id, 'gray');
+	 //colorLinksOfNode(n.id, 'gray');
 	 return
       }
 

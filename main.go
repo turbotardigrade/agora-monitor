@@ -12,14 +12,14 @@ import (
 const MyNodePath = "./data/monitorNode"
 
 var NodeList = []Node{
-	{"QmRHbpV4aEVVhoJ5F9dvRpxULLc1nDdQf6ZQqHv1pWRGrs", true}, // spammer
-	// {"QmajBiibByrMkaGFznNrA5x9oxziBMJ5QXsH5Pb8bcPpsS", true}, // spammer
-	// {"Qmae3pLmGUJhMMP8ungzHLnA5BYJWzFhbkMxHveC4CVcUU", false},
-	// {"QmTDhg18AZV27haxPW7ZZPzbczpiRBr2u7ZVznaA3Eu13J", false},
-	// {"Qmac7EgAPVuGcJcuBvD51Jpt8TkM7pMfQz1TjXi1pfgCzC", false},
-	// {"QmYSmjBiEQdkU56dkrb1cvNLfPAGKoRFXXxUAqScbEZUT8", false},
-	// {"QmaUFw1RWSzgeV1qNBDKx8okHTBEUqUiWrxKSZZjXBMYtB", false},
-	{"QmcpY55BvoQWQxSqotpTWAr5DG14mhsgcBFchRXjYoSuBu", false},
+	{"QmRvHSgaDECsffFjdjZnVxrcbJr3ohfoHUSCVxqg4xTAhj", false},
+	{"QmZP3oT7VgwMeYK59iJJqdTHXDZwdBMMMq4naPSpWnSYYS", false},
+	{"QmdXTfSJm5qHthjquZTT1iqgS6Rq4YquRXTpR9JNuPqCAf", false},
+	{"QmPc648PbyYGAHegbBqbT5wwArEgbjohDHFo8JM3G9sMvR", false},
+	{"QmdF7cFHSFctJK5NFQXZ8x7Dx1CUu42oNP5bdvTXtWys1L", false},
+	{"Qma8HKE8L8P8zyEN8m8cBGsE1rmrLMYGUXzBKqywXBfBM1", true},
+	{"QmP735X6KNTMRtMqXd5ojCY6AUHBETwkH1H6i2FLoPQzx1", true},
+	{"QmPikSygPbM3E2xGs1x7Ra2E264gCJbpRRdf7pnvRyKprT", true},
 }
 
 func main() {
@@ -55,8 +55,8 @@ func main() {
 	http.HandleFunc("/monitor", monitorHandler)
 	http.Handle("/", http.FileServer(http.Dir("visual")))
 
-	http.ListenAndServe(":8080", nil)
 	fmt.Println("Monitor API running")
+	http.ListenAndServe(":8080", nil)
 }
 
 func monitorRoutine(n *core.IpfsNode, f *os.File) {
