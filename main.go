@@ -71,7 +71,7 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 		}
 	}
 
-	fmt.Println("\nPosts")
+	fmt.Println("\nPeer\t\tnum_posts\tspamratio\tblacklist_count")
 	hr, min, sec := time.Now().Clock()
 	line := fmt.Sprintf("%d:%d:%d,", hr, min, sec)
 	for _, h := range sortedList {
@@ -97,14 +97,20 @@ func monitorRoutine(n *core.IpfsNode, f *os.File) {
 		}
 		MonitorMapLock.Unlock()
 
-		fmt.Printf("%v  %v\t%v\t%v\n", formatHash(h), total, spamratio, blacklistCount)
+		fmt.Printf("%v  \t%0000d    \t\t%.001f   \t\t%v\n", formatHash(h), total, spamratio, blacklistCount)
 		line += fmt.Sprintf("%v,%v,%v,%v,", h, total, spamratio, blacklistCount)
 	}
 	line += "\n"
 
 	fmt.Println("\nBlacklists")
 	for _, h := range sortedList {
-		fmt.Println(formatHash(h), blacklists[h])
+		fmt.Print(formatHash(h) + ":  ")
+		for _, b := range blacklists[h] {
+			for k, _ := range b {
+				fmt.Print(formatHash(k))
+			}
+		}
+		fmt.Println("")
 	}
 
 	_, err := f.WriteString(line)
