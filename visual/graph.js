@@ -196,7 +196,7 @@ function findNodeIndex(id) {
 function createLink(source, target, col) {
   var s = findNodeIndex(source);
   var t = findNodeIndex(target);
-  return { source: s, target: t, weight: 3};
+  return { source: s, target: t, weight: 3, stroke: col};
 }
 
 function colorLinksOfNode(nodeID, col) {
